@@ -58,11 +58,11 @@ class MemberDataPreprocess:
         # 고객의 서비스 이탈과 각 칼럼간의 상관계수
         self.correlation_member_secession(this.train)
 
-        # 정제 데이터 저장
-        # self.save_preprocessed_data(this)
-
         # label 컬럼 재배치
         this = self.columns_relocation(this)
+
+        # 정제 데이터 저장
+        # self.save_preprocessed_data(this)
 
         # 훈련 데이터, 레이블 데이터 분리
         # this.label = self.create_label(this)
@@ -211,9 +211,9 @@ class MemberDataPreprocess:
     # ---------------------- label 컬럼 위치 조정 ---------------------- 
     def columns_relocation(self, this):
         cols = this.train.columns.tolist()
-        # ['CustomerId', 'CreditScore', 'Geography', 'Gender', 'Tenure', 'Balance', 'NumOfProducts', 'HasCrCard', 'IsActiveMember', 'EstimatedSalary', 'Exited', 'AgeGroup']
+        # ['CustomerId', 'CreditScore', ... , 'EstimatedSalary', 'Exited', 'AgeGroup']
         cols =  (cols[:-2] + cols[-1:]) + cols[-2:-1]
-        # ['CustomerId', 'CreditScore', 'Geography', 'Gender', 'Tenure', 'Balance', 'NumOfProducts', 'HasCrCard', 'IsActiveMember', 'EstimatedSalary', 'AgeGroup', 'Exited']
+        # ['CustomerId', 'CreditScore', ... , 'EstimatedSalary', 'AgeGroup', 'Exited']
         this.train = this.train[cols]
         return this
     
