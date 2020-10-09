@@ -47,7 +47,11 @@ class MemberTraining:
         # x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3)
 
         data = tf.data.Dataset.from_tensor_slices(data)
-
+        self.train_data, self.validation_data, self.test_data = tfds.Split(
+            name=data,
+            split=('train[:60%]', 'train[60%:]', 'test')
+        )
+        # 결국 train validation test로 나누고 싶은 것 좀 더 생각해보기
         # num_validation = 7000
         # num_test = 3000
         # self.test_data = data[:num_test]
@@ -59,7 +63,7 @@ class MemberTraining:
         #     split=('train[:60%]', 'train[60%:]', 'test'),
         #     as_supervised=True
         # )
-        print(type(data))
+        print(data)
     
     # 모델 생성 (교과서 p.507)
     # Dense: 완전 연결층
