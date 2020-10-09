@@ -26,7 +26,7 @@ Exited            서비스 탈퇴 여부
 
 # DB 저장용 파일: member_detail.csv
 # memberList 비롯 get은 DB에서 받아온 정보를 바로 바로 정제할 예정: 일단은 member_preprocessed.py로 저장
-class MemberModel:
+class MemberDataPreprocess:
 
     def __init__(self):
         self.filereader = FileReader()
@@ -61,11 +61,15 @@ class MemberModel:
         # 정제 데이터 저장
         # self.save_preprocessed_data(this)
 
+        # label 컬럼 재배치
+        this = self.columns_relocation(this)
+
         # 훈련 데이터, 레이블 데이터 분리
-        this.label = self.create_label(this)
-        this.train = self.create_train(this)
+        # this.label = self.create_label(this)
+        # this.train = self.create_train(this)
         
         print(this)
+        
 
     # 고객의 서비스 이탈과 각 칼럼간의 상관계수
     def correlation_member_secession(self, members):
@@ -203,10 +207,19 @@ class MemberModel:
     def save_preprocessed_data(self, this):
         this.context = os.path.join(baseurl, 'data_preprocessed')
         this.train.to_csv(os.path.join(this.context, 'member_preprocessed.csv'))
+
+    # ---------------------- label 컬럼 위치 조정 ---------------------- 
+    def columns_relocation(self, this):
+        cols = this.train.columns.tolist()
+        # ['CustomerId', 'CreditScore', 'Geography', 'Gender', 'Tenure', 'Balance', 'NumOfProducts', 'HasCrCard', 'IsActiveMember', 'EstimatedSalary', 'Exited', 'AgeGroup']
+        cols =  (cols[:-2] + cols[-1:]) + cols[-2:-1]
+        # ['CustomerId', 'CreditScore', 'Geography', 'Gender', 'Tenure', 'Balance', 'NumOfProducts', 'HasCrCard', 'IsActiveMember', 'EstimatedSalary', 'AgeGroup', 'Exited']
+        this.train = this.train[cols]
+        return this
     
 
     # ---------------------- 모델 훈련 ---------------------- 
 
 if __name__ == '__main__':
-    member = MemberModel()
+    member = MemberDataPreprocess()
     member.hook_process()
