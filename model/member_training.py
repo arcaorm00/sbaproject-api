@@ -21,9 +21,9 @@ class MemberTraining:
 
     def hook(self):
         self.get_data()
-        # self.create_model()
+        self.create_model()
         # self.train_model()
-        # self.eval_model()
+        self.eval_model()
         # self.debug_model()
 
     @staticmethod
@@ -39,18 +39,36 @@ class MemberTraining:
         self.reader.fname = 'member_preprocessed.csv'
         data = self.reader.csv_to_dframe()
         data = data.to_numpy()
-        print(data)
+        # print(data[:60])
+
+        data_length = len(data)
+        vol_train = round(data_length * 60 / 100)
+        vol_validation = round(data_length * 40 / 100)
+        vol_test = data_length
+
+        train = data[:vol_train]
+        validation = data[vol_train:data_length]
+        test = data
+
+        self.train_data = train
+        self.validation_data = validation
+        self.test_data = test
+
 
         # x = self.create_train(data)
         # y = self.create_label(data)
 
         # x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3)
 
-        data = tf.data.Dataset.from_tensor_slices(data)
-        self.train_data, self.validation_data, self.test_data = tfds.Split(
-            name=data,
-            split=('train[:60%]', 'train[60%:]', 'test')
-        )
+        # data = tf.data.Dataset.from_tensor_slices(data)
+        # self.train_data = tf.data.Dataset.from_tensor_slices(train)
+        # self.validation_data = tf.data.Dataset.from_tensor_slices(validation)
+        # self.test_data = tf.data.Dataset.from_tensor_slices(test)
+
+        # self.train_data, self.validation_data, self.test_data = tf.split(
+        #     data,
+        #     split=('train[:60%]', 'train[60%:]', 'test')
+        # )
         # 결국 train validation test로 나누고 싶은 것 좀 더 생각해보기
         # num_validation = 7000
         # num_test = 3000
@@ -63,7 +81,7 @@ class MemberTraining:
         #     split=('train[:60%]', 'train[60%:]', 'test'),
         #     as_supervised=True
         # )
-        print(data)
+        print(training_set)
     
     # 모델 생성 (교과서 p.507)
     # Dense: 완전 연결층
