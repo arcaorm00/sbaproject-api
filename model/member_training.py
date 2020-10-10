@@ -11,9 +11,12 @@ from util.file_helper import FileReader
 
 class MemberTraining:
 
-    train_data: object = None
-    validation_data: object = None
-    test_data: object = None
+    x_train: object = None
+    y_train: object = None
+    x_validation: object = None
+    y_validation: object = None
+    x_test: object = None
+    y_test: object = None
     model: object = None
 
     def __init__(self):
@@ -22,9 +25,9 @@ class MemberTraining:
     def hook(self):
         self.get_data()
         self.create_model()
-        # self.train_model()
+        self.train_model()
         self.eval_model()
-        # self.debug_model()
+        self.debug_model()
 
     @staticmethod
     def create_train(this):
@@ -41,51 +44,23 @@ class MemberTraining:
         data = data.to_numpy()
         # print(data[:60])
 
-        data_length = len(data)
-        vol_train = round(data_length * 60 / 100)
-        vol_validation = round(data_length * 40 / 100)
-        vol_test = data_length
+        table_col = data.shape[1]
+        y_col = 1
+        x_col = table_col - y_col
+        x = data[:, 0:x_col]
+        y = data[:, x_col:]
 
-        train = data[:vol_train]
-        validation = data[vol_train:data_length]
-        test = data
+        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.4)
+        x_test, x_validation, y_test, y_validation = train_test_split(x_test, y_test, test_size=0.4)
 
-        self.train_data = train
-        self.validation_data = validation
-        self.test_data = test
+        self.x_train = x_train; self.x_validation = x_validation; self.x_test = x_test
+        self.y_train = y_train; self.y_validation = y_validation; self.y_test = y_test
 
-
-        # x = self.create_train(data)
-        # y = self.create_label(data)
-
-        # x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3)
-
-        # data = tf.data.Dataset.from_tensor_slices(data)
-        # self.train_data = tf.data.Dataset.from_tensor_slices(train)
-        # self.validation_data = tf.data.Dataset.from_tensor_slices(validation)
-        # self.test_data = tf.data.Dataset.from_tensor_slices(test)
-
-        # self.train_data, self.validation_data, self.test_data = tf.split(
-        #     data,
-        #     split=('train[:60%]', 'train[60%:]', 'test')
-        # )
-        # 결국 train validation test로 나누고 싶은 것 좀 더 생각해보기
-        # num_validation = 7000
-        # num_test = 3000
-        # self.test_data = data[:num_test]
-        # self.validation_data = data[num_test : num_test + num_validation]
-        # self.train_data = data[num_test + num_validation :]
-
-        # self.train_data, self.validation_data, self.test_data = tfds.load(
-        #     name="imdb_reviews", 
-        #     split=('train[:60%]', 'train[60%:]', 'test'),
-        #     as_supervised=True
-        # )
-        print(training_set)
     
     # 모델 생성 (교과서 p.507)
     # Dense: 완전 연결층
     def create_model(self):
+        print('********** create model **********')
         model = tf.keras.Sequential()
         model.add(tf.keras.layers.Dense(16, activation='relu'))
         model.add(tf.keras.layers.Dense(1, activation='sigmoid')) # output
@@ -94,20 +69,22 @@ class MemberTraining:
  
     # 모델 훈련
     def train_model(self):
-        self.model.fit(self.train_data.shuffle(7000).batch(512), epochs=20, 
-        validation_data=self.validation_data.batch(512), verbose=1) # 512 = 2 ^9
+        print('********** train model **********')
+        self.model.fit(x=self.x_train, y=self.y_train, 
+        validation_data=(self.x_validation, self.y_validation), epochs=20, verbose=1) # 512 = 2 ^9
     
     # 모델 평가
     def eval_model(self):
-        results = self.model.evaluate(self.test_data.batch(512), verbose=2)
+        print('********** eval model **********')
+        results = self.model.evaluate(x=self.x_test, y=self.y_test, verbose=2)
         for name, value in zip(self.model.metrics_names, results):
             print('%s: %.3f' % (name, value))
  
     # 모델 디버깅
     def debug_model(self):
-        print(f'self.train_data: {self.train_data}')
-        print(f'self.validation_data: {self.validation_data}')
-        print(f'self.test_data: {self.test_data}')
+        print(f'self.train_data: {(self.x_train, self.y_train)}')
+        print(f'self.validation_data: {(self.x_validation, self.y_validation)}')
+        print(f'self.test_data: {(self.x_test, self.y_test)}')
 
 
 if __name__ == '__main__':
