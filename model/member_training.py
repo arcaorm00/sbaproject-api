@@ -71,7 +71,7 @@ class MemberTraining:
     def train_model(self):
         print('********** train model **********')
         self.model.fit(x=self.x_train, y=self.y_train, 
-        validation_data=(self.x_validation, self.y_validation), epochs=20, verbose=1) # 512 = 2 ^9
+        validation_data=(self.x_validation, self.y_validation), epochs=20, verbose=1)
     
     # 모델 평가
     def eval_model(self):
