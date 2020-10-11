@@ -57,8 +57,10 @@ class SaveLoad:
         checkpoint_path = 'training_1/cp.ckpt'
         cp_callback = tf.keras.callbacks.ModelCheckpoint(checkpoint_path, save_weights_only=True, verbose=1)
         print('***** fit *****')
+
+        train_data = tf.data.Dataset.from_tensor_slices((self.train_datas, self.train_labels))
         #  ValueError: Input 0 of layer sequential is incompatible with the layer: expected axis -1 of input shape to have value 784 but received input with shape [None, 12]
-        self.model.fit(x=self.train_datas, y=self.train_labels, epochs=10, 
+        self.model.fit(train_data, epochs=10,
         validation_data = (self.test_datas, self.test_labels), callbacks=[cp_callback]) # 훈련 단계 콜백 전달
         self.model.load_weights(checkpoint_path) # 가중치 추가
         loss, acc = self.model.evaluate(self.test_datas, self.test_labels, verbose=2)
